@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,26 +10,27 @@
     <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <!-- <script src="https://cdn.bootcdn.net/ajax/libs/qs/6.10.1/qs.min.js"></script> -->
 </head>
+
 <body>
     <!-- <form action="http://127.0.0.1:4396/chx/uploadFile" method="POST" enctype="multipart/form-data"> -->
-        <div>
-            <label for="file">Choose file to upload</label>
-            <input type="file" id="file" name="file" multiple>
-          </div>
-       <div>
+    <div>
+        <label for="file">Choose file to upload</label>
+        <input type="file" id="file" name="file" multiple>
+    </div>
+    <div>
         <button onclick="submit()">上传文件</button>
-      </div>
-      <!-- </form> -->
+    </div>
+    <!-- </form> -->
 </body>
 <script>
     const instance = axios.create({
         baseURL: 'http://127.0.0.1:4396/chx',
         timeout: 1000
     });
-    function submit () {
+    function submit() {
         let hash = Date.now()
         let file = document.querySelector('[name=file]').files
-        
+
         console.log('file', file)
         if (file.length > 0) {
             if (file[0].size == 0) {
@@ -47,21 +49,21 @@
         let end = start + piece; // 每次上传的结尾字节
         let promiseArr = []
         while (start < totalSize) {
-        // 根据长度截取每次需要上传的数据
-        // File对象继承自Blob对象，因此包含slice方法
-        let blob = file.slice(start, end); 
-        let formData = new FormData();
-        formData.append('file', blob);
-        formData.append('name', file.name);
-        formData.append('hash', hash);
-        formData.append('index', index);
-        formData.append('totalSize', totalSize);
-        promiseArr.push(instance.post('/uploadFile', formData, {
-            headers: {'Content-Type': 'multipart/form-data'}
-        }))
-        start = end;
-        end = start + piece;
-        index++
+            // 根据长度截取每次需要上传的数据
+            // File对象继承自Blob对象，因此包含slice方法
+            let blob = file.slice(start, end);
+            let formData = new FormData();
+            formData.append('file', blob);
+            formData.append('name', file.name);
+            formData.append('hash', hash);
+            formData.append('index', index);
+            formData.append('totalSize', totalSize);
+            promiseArr.push(instance.post('/uploadFile', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            }))
+            start = end;
+            end = start + piece;
+            index++
         }
         Promise.all(promiseArr).then(() => {
             let fileInfo = {
@@ -69,10 +71,11 @@
                 hash,
                 blockCount
             }
-            instance.post('/doneFile',  fileInfo).then((res)=>{
+            instance.post('/doneFile', fileInfo).then((res) => {
                 alert(res.data.message)
             })
         })
     }
 </script>
+
 </html>
